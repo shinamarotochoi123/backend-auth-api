@@ -1,6 +1,3 @@
-// _helpers/db.ts
-import config from '../config.json';
-import mysql from 'mysql2/promise';
 import { Sequelize } from 'sequelize';
 import accountModel from '../accounts/account.model';
 import refreshTokenModel from '../accounts/refresh-token.model';
@@ -8,31 +5,43 @@ import refreshTokenModel from '../accounts/refresh-token.model';
 const db: any = {};
 export default db;
 
-initialize();
+const DATABASE_URL = process.env.DATABASE_URL;
 
-async function initialize() {
-  const { host, port, user, password, database } = config.database;
+if (!DATABASE_URL) {
+  console.error('❌ DATABASE_URL is not defined in environment variables');
+  process.exit(1);
+}
 
-  // Create DB if it doesn't exist
-  const connection = await mysql.createConnection({ host, port, user, password });
-  await (connection as any).query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
-  await connection.end();
+console.log('📡 Connecting to database...');
 
-  // Connect to DB
-  const sequelize = new Sequelize(database, user, password, {
-    dialect: 'mysql',
-    logging: false
+const sequelize = new Sequelize(DATABASE_URL, {
+  dialect: 'mysql',
+  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
+});
+
+// Test connection
+sequelize.authenticate()
+  .then(() => console.log('✅ Database connection established'))
+  .catch(err => {
+    console.error('❌ Database connection failed:', err.message);
+    process.exit(1);
   });
 
-  // Init models
-  db.Account = accountModel(sequelize);
-  db.RefreshToken = refreshTokenModel(sequelize);
+// Init models
+db.Account = accountModel(sequelize);
+db.RefreshToken = refreshTokenModel(sequelize);
 
-  // Define relationships
-  db.Account.hasMany(db.RefreshToken, { onDelete: 'CASCADE' });
-  db.RefreshToken.belongsTo(db.Account);
+// Relationships
+db.Account.hasMany(db.RefreshToken, { onDelete: 'CASCADE' });
+db.RefreshToken.belongsTo(db.Account);
 
-  // Sync models with database
-  await sequelize.sync({ alter: true });
-  console.log('✅ Database initialized and models synced');
-}
+// Sync models
+sequelize.sync({ alter: true })
+  .then(() => console.log('✅ Database initialized and models synced'))
+  .catch(err => console.error('⚠️ Sync error:', err.message));

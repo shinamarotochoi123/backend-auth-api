@@ -1,0 +1,19 @@
+{
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "",
+    "database": "auth_db"
+  },
+  "secret": "your_super_secret_key_here",
+  "emailFrom": "no-reply@example.com",
+  "smtpOptions": {
+    "host": "smtp.ethereal.email",
+    "port": 587,
+    "auth": {
+      "user": "",
+      "pass": ""
+    }
+  }
+}
