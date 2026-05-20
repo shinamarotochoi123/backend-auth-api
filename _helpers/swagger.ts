@@ -1,11 +1,24 @@
-// _helpers/swagger.ts
-import express from 'express';
 import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
+import swaggerJsdoc from 'swagger-jsdoc';
 
-const router = express.Router();
-const swaggerDocument = YAML.load('./swagger.yaml');
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Node MySQL API',
+      version: '1.0.0',
+      description: 'Authentication API with Node.js + MySQL'
+    },
+    servers: [
+      {
+        url: process.env.CLIENT_URL || 'https://backend-auth-api-2.onrender.com',
+        description: 'Production server'
+      }
+    ]
+  },
+  apis: ['./dist/accounts/*.js', './dist/_helpers/*.js']
+};
 
-router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const swaggerSpec = swaggerJsdoc(options);
 
-export default router;
+export default [swaggerUi.serve, swaggerUi.setup(swaggerSpec)];
