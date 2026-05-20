@@ -1,7 +1,9 @@
 // _middleware/authorize.ts
 import { expressjwt } from 'express-jwt';
-import config from '../config.json';
 import db from '../_helpers/db';
+
+// Use environment variable for secret
+const secret = process.env.JWT_SECRET || 'your_secret_key';
 
 export default authorize;
 
@@ -11,7 +13,10 @@ function authorize(roles: string[] | string = []) {
   }
 
   return [
-    expressjwt({ secret: config.secret, algorithms: ['HS256'] }),
+    // Verify JWT token
+    expressjwt({ secret, algorithms: ['HS256'] }),
+    
+    // Authorize based on user role
     async (req: any, res: any, next: any) => {
       const account = await db.Account.findByPk(req.auth.id);
 

@@ -6,7 +6,9 @@ import { Op } from 'sequelize';
 import sendEmail from '../_helpers/send-email';
 import db from '../_helpers/db';
 import Role from '../_helpers/role';
-import config from '../config.json';
+
+// Use environment variable for secret
+const secret = process.env.JWT_SECRET || 'your_secret_key';
 
 export default {
   authenticate,
@@ -176,7 +178,7 @@ async function hash(password: string) {
 function generateJwtToken(account: any) {
   return jwt.sign(
     { sub: account.id, id: account.id },
-    config.secret,
+    secret,  // ← Now using environment variable
     { expiresIn: '15m' }
   );
 }
