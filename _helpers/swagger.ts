@@ -11,12 +11,21 @@ const options = {
     },
     servers: [
       {
-        url: process.env.CLIENT_URL || 'https://backend-auth-api-2.onrender.com',
+        url: 'https://backend-auth-api-2.onrender.com',
         description: 'Production server'
       }
-    ]
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    }
   },
-  apis: ['./dist/accounts/*.js', './dist/_helpers/*.js']
+  apis: ['./dist/accounts/*.js']
 };
 
 const swaggerSpec = swaggerJsdoc(options);

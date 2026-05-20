@@ -8,7 +8,6 @@ import accountsController from './accounts/accounts.controller';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
@@ -20,32 +19,16 @@ const swaggerOptions = {
     info: {
       title: 'Node MySQL API',
       version: '1.0.0',
-      description: 'Authentication API with Node.js + MySQL',
-      contact: {
-        name: 'API Support'
-      }
+      description: 'Authentication API with Node.js + MySQL'
     },
     servers: [
       {
         url: process.env.CLIENT_URL || 'https://backend-auth-api-2.onrender.com',
         description: 'Production server'
-      },
-      {
-        url: 'http://localhost:4000',
-        description: 'Local development server'
       }
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
-      }
-    }
+    ]
   },
-  apis: ['./dist/accounts/*.js', './dist/_helpers/*.js']
+  apis: ['./dist/accounts/*.js']
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
@@ -55,10 +38,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// CORS Configuration
+// CORS - Allow frontend
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:4200',
-  credentials: true
+  origin: ['http://localhost:4200', 'https://angular-auth-boilerplate.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Routes
@@ -81,13 +66,11 @@ app.get('/', (req, res) => {
   });
 });
 
-// Global error handler - must be last
+// Global error handler
 app.use(errorHandler);
 
-// Port configuration
 const port = process.env.PORT || 4000;
 
-// Start server
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
   console.log(`📚 Swagger docs available at http://localhost:${port}/api-docs`);
