@@ -12,7 +12,7 @@ const router = express.Router();
 router.post('/authenticate',         authenticateSchema,       authenticate);
 router.post('/refresh-token',                                  refreshToken);
 router.post('/revoke-token',         authorize(),              revokeTokenSchema, revokeToken);
-router.post('/register',             registerSchema,           register);
+router.post('/register',             registerSchema,           register);  // ✅ This is PUBLIC - no authorize()
 router.post('/verify-email',         verifyEmailSchema,        verifyEmail);
 router.post('/forgot-password',      forgotPasswordSchema,     forgotPassword);
 router.post('/validate-reset-token', validateResetTokenSchema, validateResetToken);
@@ -86,10 +86,15 @@ function registerSchema(req: any, res: any, next: any) {
   validateRequest(req, next, schema);
 }
 
+// ✅ This is the registration function - it should work without authentication
 function register(req: any, res: any, next: any) {
+  console.log('📝 Registration attempt for:', req.body.email);
   accountService.register(req.body, req.get('origin'))
     .then(() => res.json({ message: 'Registration successful, please check your email for verification instructions' }))
-    .catch(next);
+    .catch((err: any) => {
+      console.error('❌ Registration error:', err);
+      res.status(400).json({ message: err });
+    });
 }
 
 function verifyEmailSchema(req: any, res: any, next: any) {
