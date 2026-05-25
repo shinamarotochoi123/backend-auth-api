@@ -7,13 +7,8 @@ import errorHandler from './_middleware/error-handler';
 import accountsController from './accounts/accounts.controller';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
-import { initDb } from './_helpers/db';
 
-// Load environment variables
 dotenv.config();
-
-// Initialize database (in-memory for demo)
-initDb();
 
 const app = express();
 
@@ -25,27 +20,18 @@ const swaggerOptions = {
       title: 'Node MySQL API',
       version: '1.0.0',
       description: 'Authentication API with Node.js + MySQL',
-      contact: {
-        name: 'API Support'
-      }
+      contact: { name: 'API Support' }
     },
     servers: [
       {
         url: process.env.CLIENT_URL || 'https://backend-auth-api-2.onrender.com',
         description: 'Production server'
       },
-      {
-        url: 'http://localhost:4000',
-        description: 'Local development server'
-      }
+      { url: 'http://localhost:4000', description: 'Local development server' }
     ],
     components: {
       securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
+        bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
       }
     }
   },
@@ -59,7 +45,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// CORS Configuration - Allow frontend
+// CORS Configuration
 app.use(cors({
   origin: ['http://localhost:4200', 'https://angular-auth-boilerplate.vercel.app'],
   credentials: true,
@@ -67,7 +53,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// PING endpoint para dili mag-cold start
+// Ping endpoint to prevent cold start
 app.get('/ping', (req, res) => {
   res.json({ status: 'ok', time: new Date(), message: 'Backend is awake!' });
 });
@@ -76,11 +62,7 @@ app.get('/ping', (req, res) => {
 app.get('/swagger.json', (req, res) => {
   res.json({
     openapi: '3.0.0',
-    info: {
-      title: 'Node MySQL API',
-      version: '1.0.0',
-      description: 'Authentication API'
-    },
+    info: { title: 'Node MySQL API', version: '1.0.0', description: 'Authentication API' },
     paths: {
       '/accounts/register': {
         post: {
@@ -137,7 +119,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Quick test route
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'Authentication API is running!',
     docs: '/api-docs',
     swagger: '/swagger.json',
@@ -163,5 +145,4 @@ app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
   console.log(`📚 Swagger docs available at http://localhost:${port}/api-docs`);
   console.log(`🚀 API available at http://localhost:${port}`);
-  console.log(`📖 Simple Swagger: http://localhost:${port}/swagger.json`);
 });
