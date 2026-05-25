@@ -67,7 +67,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Simple Swagger JSON endpoint (fallback)
+// PING endpoint para dili mag-cold start
+app.get('/ping', (req, res) => {
+  res.json({ status: 'ok', time: new Date(), message: 'Backend is awake!' });
+});
+
+// Simple Swagger JSON endpoint
 app.get('/swagger.json', (req, res) => {
   res.json({
     openapi: '3.0.0',
